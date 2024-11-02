@@ -1,0 +1,34 @@
+const express = require("express");
+const router = express.Router();
+const {
+  getLoggedInUser,
+  updateInforUser,
+  getAllUsers,
+  removeUser,
+  createUser,
+} = require("../controllers/userController");
+const authenticateToken = require("../middleware/authMiddleware");
+const authorizeAdmin = require("../middleware/authorizeAdmin");
+
+// API lấy thông tin người dùng đang đăng nhập (cần Token)
+router.get("/me", authenticateToken, getLoggedInUser);
+// API chỉnh sửa thông tin người dùng đang đăng nhập (cần Token)
+router.put("/update/me", authenticateToken, updateInforUser);
+// API quản lý người dùng, chỉ có Admin mới có quyền truy cập (cần xác nhận quyền Admin, cần Token)
+router.get("/admin/users", authenticateToken, authorizeAdmin, getAllUsers);
+// API xóa người dùng theo id, chỉ có Admin mới có quyền truy cập (cần xác nhận quyền Admin, cần Token)
+router.delete(
+  "/admin/delete/:id",
+  authenticateToken,
+  authorizeAdmin,
+  removeUser
+);
+// API tạo người dùng, chỉ có Admin mới có quyền truy cập (cần xác nhận quyền Admin, cần Token)
+router.post(
+  "/admin/create-user",
+  authenticateToken,
+  authorizeAdmin,
+  createUser
+);
+
+module.exports = router;
