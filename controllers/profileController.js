@@ -35,15 +35,45 @@ const createProfile = async (req, res) => {
 
 // Cập nhật hồ sơ
 const updateProfile = async (req, res) => {
+  console.log("In controller updateProfile: ", req.body);
   try {
-    const userId = req.user.id;
-    const updatedProfile = await profileService.updateProfile(userId, req.body);
-    if (!updatedProfile) {
-      return res.status(404).json({ message: "Profile not found" });
-    }
-    res.status(200).json(updatedProfile);
+    // Chuyển việc xử lý chỉ trả về dữ liệu từ service, controller chịu trách nhiệm trả lời
+    const updatedProfile = await profileService.updateUserProfile(
+      req.user.profileId,
+      req.body
+    );
+
+    // Gửi phản hồi chỉ một lần ở đây
+    res.status(200).json({
+      error: 0,
+      message: "Cập nhật thông tin thành công",
+      data: updatedProfile,
+    });
+  } catch (err) {
+    console.error("Cập nhật hồ sơ thất bại:", err);
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+const updateAvatar = async (req, res) => {
+  try {
+    const file = req.file; // Lấy file từ request (nếu có)
+
+    // Gọi service để cập nhật avatar
+    const avatarUrl = await profileService.updateAvatar(req, res, file);
+
+    return res.status(200).send({
+      message: "Avatar updated successfully",
+      avatar: avatarUrl,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    return res
+      .status(500)
+      .send({ message: "Error updating avatar: " + error.message });
   }
 };
 
@@ -66,4 +96,5 @@ module.exports = {
   createProfile,
   updateProfile,
   deleteProfile,
+  updateAvatar,
 };

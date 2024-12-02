@@ -3,11 +3,19 @@ const Role = require("../models/roleModel"); // Import Role model
 const User = require("../models/userModel");
 
 // 1. Tạo AccessToken
-const generateAccessToken = (user) => {
+const generateAccessToken = async (user) => {
+  // Lấy giá trị role_code từ User (ObjectId tham chiếu đến Role)
+  const role = await Role.findById(user.role_code); // Truy vấn Role theo role_code (ObjectId)
+  console.log("role in generate: ", role);
+
+  // Nếu tìm thấy role, lấy giá trị code
+  const roleCode = role ? role.code : null;
+  console.log(roleCode);
+
   return jwt.sign(
-    { id: user._id, email: user.email, role_code: user.role_code },
+    { id: user._id, email: user.email, role_code: roleCode },
     process.env.JWT_SECRET || "defaultsecretkey",
-    { expiresIn: "30m" }
+    { expiresIn: "1h" }
   );
 };
 

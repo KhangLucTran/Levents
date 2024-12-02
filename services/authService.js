@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const Profile = require("../models/profileModel");
 const Role = require("../models/roleModel");
+const Address = require("../models/addressModel");
+const Cart = require("../models/cartModel");
 require("dotenv").config();
 const {
   generateAccessToken,
@@ -29,16 +31,16 @@ const registerUser = async ({
   let address = null;
   if (addressData) {
     address = await Address.create({
-      addressLine: addressData.addressLine,
-      city: addressData.city,
-      region: addressData.region,
+      addressLine: "",
+      province: "",
+      district: "",
     });
   }
 
   // Tạo hồ sơ Profile mới, với address là null nếu không có addressData
   const newProfile = await Profile.create({
     username,
-    address: address ? address._id : null,
+    address: address ? address._id : null, // Lưu ObjectId nếu có, hoặc null nếu không có,
   });
 
   // Lấy vai trò mặc định R3-User
@@ -57,6 +59,13 @@ const registerUser = async ({
     role_code: roleR3._id,
   });
 
+  // Tạo giỏ hàng mới
+  await Cart.create({
+    user: newUser._id, // Lưu userId vào Cart
+    items: [], // Giỏ hàng bắt đầu trống
+    totalAmount: 0, // Giỏ hàng bắt đầu với tổng giá trị bằng 0
+  });
+  
   // Tạo AccessToken và RefreshToken
   const accessToken = generateAccessToken(newUser);
   const refreshToken = generateRefreshToken(newUser._id);
@@ -91,7 +100,7 @@ const loginUser = async ({ email, password }) => {
   if (!isPasswordValid) {
     throw new Error("Password Invalid");
   }
-  const accessToken = generateAccessToken(user);
+  const accessToken = await generateAccessToken(user);
   const refreshToken = generateRefreshToken(user._id);
 
   await User.findByIdAndUpdate(user._id, {

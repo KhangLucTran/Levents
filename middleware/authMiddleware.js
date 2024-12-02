@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const Profile = require("../models/profileModel");
+const Address = require("../models/addressModel");
 const { rotateRefreshToken } = require("../config/tokenUtils");
 
 /**
@@ -24,14 +26,26 @@ const authenticateToken = async (req, res, next) => {
       process.env.JWT_SECRET || "defaultsecretkey"
     );
 
-    req.user = await User.findById(decoded.id)
+    // Tìm User và populate profileId và role_code
+    const user = await User.findById(decoded.id)
       .populate("profileId")
       .populate("role_code");
 
-    if (!req.user) {
+    if (!user) {
       return res.status(404).json({ error: 1, message: "User not found" });
     }
 
+    // Lấy thông tin chi tiết địa chỉ từ Address nếu tồn tại
+    let addressDetails = null;
+    if (user.profileId?.address) {
+      addressDetails = await Address.findById(user.profileId.address);
+    }
+
+    // Gắn thông tin người dùng vào req.user, bao gồm cả địa chỉ
+    req.user = {
+      ...user.toObject(),
+      address: addressDetails || null, // Địa chỉ đầy đủ, hoặc null nếu không có
+    };
     next(); // Cho phép tiếp tục xử lý API nếu accessToken hợp lệ
   } catch (error) {
     console.error(error);

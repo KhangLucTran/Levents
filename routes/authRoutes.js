@@ -11,6 +11,7 @@ const {
   sendMailVerifyAccount,
   changePassword,
 } = require("../controllers/authController");
+
 // API đăng kí (không cần Token)
 router.post("/register", register);
 // API đăng nhập (không cần Token)
@@ -27,4 +28,5 @@ router.get("/verify-account/:email", verifyAccount);
 router.post("/send-mail-verify/:email", sendMailVerifyAccount);
 // API đổi mật khẩu (cần token)
 router.post("/change-password", authenticateToken, changePassword);
+
 module.exports = router;

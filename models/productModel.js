@@ -1,23 +1,65 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
-const addressSchema = new mongoose.Schema({
-  addressLine: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  city: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  region: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-});
+// Định nghĩa schema cho Product
+const productSchema = new Schema(
+  {
+    // Tên sản phẩm
+    title: {
+      type: String,
+      required: true,
+    },
 
-const Address = mongoose.model("Address", addressSchema);
+    // Danh sách ảnh sản phẩm
+    images: {
+      type: [String], // Mảng các URL ảnh
+      required: true,
+    },
 
-module.exports = Address;
+    // Giá sản phẩm
+    price: {
+      type: Number,
+      required: true,
+    },
+
+    // Các size có sẵn cho sản phẩm
+    sizes: {
+      type: [String],
+      enum: ["S", "M", "L", "XL"],
+      default: ["S", "M", "L", "XL"], // Mặc định là có đủ 4 size
+    },
+
+    // Các màu sắc có sẵn cho sản phẩm
+    colors: {
+      type: [String],
+      enum: ["Green", "Red", "Blue"],
+      default: ["Green", "Red", "Blue"], // Mặc định có 3 màu sắc
+    },
+
+    // Chi tiết sản phẩm
+    description: {
+      type: String,
+      required: true,
+    },
+
+    // Số lượng sản phẩm còn trong kho
+    stock: {
+      type: Number,
+      required: true,
+    },
+
+    // Thể loại sản phẩm (Ví dụ: Quần, Áo, Nón)
+    category: {
+      type: String,
+      required: true,
+      enum: ["Shirt", "Pants", "Hat"], // Đảm bảo chỉ có thể là các giá trị này
+    },
+  },
+  {
+    // Tự động thêm createdAt và updatedAt
+    timestamps: true,
+  }
+);
+
+// Xuất model Product
+module.exports = mongoose.model("Product", productSchema);

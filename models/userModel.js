@@ -61,5 +61,23 @@ const userSchema = new Schema(
   }
 );
 
+// Trước khi lưu User, tìm Role mặc định với code là "R3" và gán vào role_code
+userSchema.pre("save", async function (next) {
+  if (!this.role_code) {
+    try {
+      // Tìm Role có code là "R3"
+      const defaultRole = await Role.findOne({ code: "R3" });
+      if (defaultRole) {
+        this.role_code = defaultRole._id; // Gán _id của role vào role_code
+      } else {
+        throw new Error("Default role 'R3' not found.");
+      }
+    } catch (error) {
+      return next(error);
+    }
+  }
+  next();
+});
+
 // Xuất model User
 module.exports = mongoose.model("User", userSchema);

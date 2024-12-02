@@ -139,7 +139,7 @@ const createUserByAdmin = async (userCreate) => {
   });
 
   // Tạo accessToken và refreshToken
-  const accessToken = generateAccessToken(newUser);
+  const accessToken = await generateAccessToken(newUser);
   const refreshToken = generateRefreshToken(newUser._id);
 
   // Lưu lại refreshToken

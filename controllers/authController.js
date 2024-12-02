@@ -112,9 +112,7 @@ const verifyAccount = async (req, res) => {
   try {
     const { email } = req.params;
     const result = await verifyAccountUser(email);
-    return res
-      .status(200)
-      .json({ error: 0, message: "Verify Account successfully", ...result });
+    return res.redirect("http://localhost:3000/login");
   } catch (error) {
     console.eror("Verify Account Error: ", error);
     return res.status(500).json({ error: 1, message: error.message });

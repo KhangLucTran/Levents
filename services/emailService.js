@@ -51,7 +51,7 @@ const sendVerifyEmail = async (email) => {
   const templatePath = path.join(__dirname, "..", "view", "emailContent.html");
 
   let htmlContent = fs.readFileSync(templatePath, "utf-8");
-  const verifyAccountLink = `http://localhost:3000/api/auth/verify-account/${email}`;
+  const verifyAccountLink = `http://localhost:5000/api/auth/verify-account/${email}`;
   // Correct the placeholder syntax
   htmlContent = htmlContent.replace("{{verifyAccountLink}}", verifyAccountLink);
 
