@@ -46,6 +46,22 @@ const getAllProducts = async () => {
   }
 };
 
+// Hàm xóa sản phẩm theo title
+const deleteProductByTitle = async (title) => {
+  try {
+    // Tìm và xóa sản phẩm theo title
+    const result = await Product.findOneAndDelete({ title });
+
+    if (!result) {
+      throw new Error("Sản phẩm không tồn tại.");
+    }
+
+    return result;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 // Lấy sản phẩm theo ID
 const getProductById = async (id) => {
   try {
@@ -99,4 +115,5 @@ module.exports = {
   getProductById,
   updateProductById,
   deleteProductById,
+  deleteProductByTitle,
 };

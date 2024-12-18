@@ -3,6 +3,7 @@ const {
   getAllUsersByAdmin,
   deleteUserById,
   createUserByAdmin,
+  getUserByIdNo_Code,
 } = require("../services/userService");
 
 /**
@@ -85,10 +86,25 @@ const createUser = async (req, res) => {
   }
 };
 
+const getUserById = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const result = await getUserByIdNo_Code(userId);
+    res.status(200).json({
+      error: 0,
+      message: "Get User By Id Successfully!",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Get User By Id Fail: ", error);
+    res.status(500).json({ error: 1, message: error.message });
+  }
+};
 module.exports = {
   getAllUsers,
   getLoggedInUser,
   updateInforUser,
   removeUser,
   createUser,
+  getUserById,
 };

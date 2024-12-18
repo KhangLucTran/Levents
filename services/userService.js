@@ -23,7 +23,14 @@ const getUserById = async (userId) => {
   }
   return user;
 };
-
+// 1. Hàm lấy thông tin của user đang đăng nhập
+const getUserByIdNo_Code = async (userId) => {
+  const user = await User.findById(userId).populate("profileId");
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return user;
+};
 // 2. Hàm chỉnh sửa thông tin user
 const updateUser = async (userId, updateData) => {
   // Tìm người dùng theo ID
@@ -162,4 +169,5 @@ module.exports = {
   getUserById,
   updateUser,
   createUserByAdmin,
+  getUserByIdNo_Code,
 };

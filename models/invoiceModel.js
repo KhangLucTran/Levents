@@ -15,7 +15,7 @@ const invoiceSchema = new Schema({
   status: {
     type: String,
     enum: ["Pending", "Paid", "Shipped", "Completed", "Cancelled"],
-    default: "Completed",
+    default: "Pending",
   },
   issuedAt: {
     type: Date,
@@ -28,6 +28,12 @@ const invoiceSchema = new Schema({
     {
       type: Schema.Types.ObjectId,
       ref: "LineItem",
+    },
+  ],
+  productIds: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
     },
   ],
 });

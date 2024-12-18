@@ -21,7 +21,7 @@ const registerUser = async ({
 }) => {
   const existingUser = await User.findOne({ email }).lean();
   if (existingUser) {
-    throw new Error("Email already exists");
+    throw new Error("Email đã tồn tại!");
   }
 
   // Mã hóa mật khẩu
@@ -65,7 +65,7 @@ const registerUser = async ({
     items: [], // Giỏ hàng bắt đầu trống
     totalAmount: 0, // Giỏ hàng bắt đầu với tổng giá trị bằng 0
   });
-  
+
   // Tạo AccessToken và RefreshToken
   const accessToken = generateAccessToken(newUser);
   const refreshToken = generateRefreshToken(newUser._id);
@@ -89,16 +89,18 @@ const loginUser = async ({ email, password }) => {
   const user = await User.findOne({ email }).populate("profileId");
   // Kiểm tra email có tồn tại hay chưa.
   if (!user) {
-    throw new Error("Email hasn't been registered");
+    throw new Error("Email chưa được đăng ký!");
   }
   // // Kiểm tra tài khoản có verify chưa.
   if (user.verifyState === "false") {
-    throw new Error("Account not verified. Please verify your email.");
+    throw new Error(
+      "Tài khoản chưa được xác minh. Vui lòng xác minh email của bạn.!"
+    );
   }
   // Kiểm tra password
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
-    throw new Error("Password Invalid");
+    throw new Error("Mật khẩu không hợp lệ!");
   }
   const accessToken = await generateAccessToken(user);
   const refreshToken = generateRefreshToken(user._id);
@@ -193,7 +195,7 @@ const verifyOTPUser = async (email, otpInput) => {
     }
 
     // Nếu OTP hợp lệ
-    return { error: 0, message: "OTP is valid." };
+    return { error: 0, message: "OTP hợp lệ" };
   } catch (error) {
     console.log(error);
     throw new Error("Error when confirming OTP.");
@@ -213,7 +215,7 @@ const resetPasswordUser = async (email, newPassword) => {
     if (user) {
       return {
         error: 0,
-        message: "Password has been changed successfully.",
+        message: "Mật khẩu được cập nhật thành công!",
         data: user,
       };
     } else {

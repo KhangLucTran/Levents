@@ -6,11 +6,16 @@ const createInvoice = async (data) => {
   return await invoice.save();
 };
 
-// Hàm lấy Invoice theo id
-const getInvoiceById = async (id) => {
-  return await Invoice.findById(id);
+// Hàm lấy Invoice theo userid
+const getInvoiceByUserId = async (userId) => {
+  return await Invoice.find({ user: userId }); // Tìm các hóa đơn của người dùng theo userId
 };
 
+// Hàm lấy Invocie theo id
+const getInvoiceById = async (invoiceId) => {
+  // Tìm hóa đơn theo invoiceId
+  return await Invoice.findById(invoiceId); // Sử dụng findById để tìm hóa đơn theo _id
+};
 // Hàm update trạng thái Invoice
 const updateInvoiceStatus = async (id, status) => {
   return await Invoice.findByIdAndUpdate(id, { status }, { new: true });
@@ -25,7 +30,7 @@ const confirmInvoice = async (objectId) => {
 
   // Kiểm tra nếu trạng thái là "Pending", cập nhật thành "Completed"
   if (invoice.status === "Pending") {
-    return await updateInvoiceStatus(invoiceId, "Completed");
+    return await updateInvoiceStatus(objectId, "Completed");
   } else {
     throw new Error("Invoice is already processed or not in 'Pending' status");
   }
@@ -36,10 +41,20 @@ const getAllInvoices = async () => {
   return await Invoice.find();
 };
 
+// Hàm tìm Invoice theo userId và productId
+const findInvoiceByUserAndProduct = async (userId, productId) => {
+  return await Invoice.findOne({
+    user: userId, // Kiểm tra userId
+    productIds: { $in: [productId] }, // Kiểm tra nếu productId nằm trong mảng productIds
+  });
+};
+
 module.exports = {
   createInvoice,
-  getInvoiceById,
+  getInvoiceByUserId,
   updateInvoiceStatus,
   confirmInvoice,
   getAllInvoices,
+  findInvoiceByUserAndProduct,
+  getInvoiceById,
 };

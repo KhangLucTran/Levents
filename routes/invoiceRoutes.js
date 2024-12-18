@@ -7,9 +7,20 @@ const authenticateToken = require("../middleware/authMiddleware");
 router.post("/", authenticateToken, invoiceController.createInvoice);
 
 // Xác nhận hóa đơn (admin xác nhận)
-router.post("/confirm", authenticateToken, invoiceController.confirmInvoice);
+router.post(
+  "/confirm/:id",
+  authenticateToken,
+  invoiceController.confirmInvoice
+);
 
-// Lấy hóa đơn theo ID
+// Lấy tất cả invoices theo userId
+router.get(
+  "/get-invoice-user",
+  authenticateToken,
+  invoiceController.getInvoiceByUserId
+);
+
+// Lấy tất cả invoices theo userId
 router.get(
   "/get-invoice/:id",
   authenticateToken,

@@ -2,12 +2,15 @@ const moment = require("moment");
 const InvoiceService = require("../services/invoiceService");
 const CartService = require("../services/cartService");
 const mongoose = require("mongoose");
+const LineItem = require("../models/lineItemModel");
+
 class InvoiceController {
   // API tạo Invoice (không có VNPAY)
   static async createInvoice(req, res) {
     try {
       const { cartId, userId, lineItemIds, totalAmount } = req.body;
       console.log(totalAmount);
+
       // Kiểm tra các tham số đầu vào
       if (
         !cartId ||
@@ -20,13 +23,34 @@ class InvoiceController {
         });
       }
 
+      // Tạo mảng productIds từ các lineItemIds
+      const productIds = await Promise.all(
+        lineItemIds.map(async (lineItemId) => {
+          const lineItem = await LineItem.findById(lineItemId).populate(
+            "product"
+          ); // populate "product" để lấy thông tin của Product
+          if (!lineItem) {
+            throw new Error(`Line item with ID ${lineItemId} not found`);
+          }
+          return lineItem.product._id; // Trả về productId của mỗi lineItem (thông qua populate)
+        })
+      );
+
       // Tạo hóa đơn qua InvoiceService
       const invoice = await InvoiceService.createInvoice({
         cart: cartId,
         user: userId,
-        lineItems: lineItemIds,
+        productIds: productIds, // Gán mảng productIds vào invoice
         totalAmount: totalAmount,
       });
+
+      // Xóa các lineItem trong cart
+      // Sau khi tạo hóa đơn thành công, xóa các LineItem khỏi Cart
+      for (let lineItemId of lineItemIds) {
+        // Gọi hàm xóa LineItem khỏi Cart
+        await CartService.removeLineItemFromCart(cartId, lineItemId);
+      }
+
       res.status(201).json({
         message: "Invoice created successfully",
         invoice,
@@ -39,7 +63,7 @@ class InvoiceController {
   // API xác nhận hóa đơn (admin xác nhận)
   static async confirmInvoice(req, res) {
     try {
-      const invoiceId = req.body;
+      const invoiceId = req.params.id;
       const objectId = new mongoose.Types.ObjectId(invoiceId);
       console.log(invoiceId);
       if (!invoiceId) {
@@ -57,7 +81,23 @@ class InvoiceController {
     }
   }
 
-  // API lấy Invoice theo ID
+  // API lấy Invoice theo userID
+  static async getInvoiceByUserId(req, res) {
+    try {
+      const userId = req.user._id;
+      console.log("userId trong controller:", userId);
+      const invoice = await InvoiceService.getInvoiceByUserId(userId);
+
+      if (!invoice) {
+        return res.status(404).json({ message: "Invoice not found" });
+      }
+
+      res.status(200).json({ invoice });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+  // API lấy Invoice theo InvoiceId
   static async getInvoiceById(req, res) {
     try {
       const { id } = req.params;
@@ -72,7 +112,6 @@ class InvoiceController {
       res.status(500).json({ message: error.message });
     }
   }
-
   // API lấy tất cả invoices
   static async getAllInvoices(req, res) {
     try {

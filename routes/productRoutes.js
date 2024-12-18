@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const {
   addProductController,
-  deleteProductByIController,
+  deleteProductByIdController,
+  deleteProductByTitleController,
   getProductByIdController,
   getAllProducts,
 } = require("../controllers/productController");
@@ -20,9 +21,10 @@ router.post(
 router.delete(
   "/delete-product/:id",
   authenticateToken,
-  deleteProductByIController
+  deleteProductByIdController
 );
-
+// Route xóa sản phẩm theo title
+router.delete("/delete-product-title/:title", deleteProductByTitleController);
 // Route lấy sản phẩm theo  (PULIC)
 router.get("/get-product/:id", getProductByIdController);
 // Route lấy tất cả sản phẩm (PULIC)

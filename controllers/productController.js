@@ -30,6 +30,23 @@ const addProductController = async (req, res) => {
   }
 };
 
+const deleteProductByTitleController = async (req, res) => {
+  const { title } = req.params;
+
+  try {
+    const deletedProduct = await productService.deleteProductByTitle(title);
+    return res.status(200).json({
+      message: "Sản phẩm đã được xóa thành công.",
+      product: deletedProduct,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: "Không thể xóa sản phẩm.",
+      error: error.message,
+    });
+  }
+};
+
 const getAllProducts = async (req, res) => {
   try {
     const products = await productService.getAllProducts();
@@ -63,7 +80,7 @@ const updateProductById = async (req, res) => {
   }
 };
 
-const deleteProductByIController = async (req, res) => {
+const deleteProductByIdController = async (req, res) => {
   try {
     const deletedProduct = await productService.deleteProductById(
       req.params.id
@@ -81,5 +98,6 @@ module.exports = {
   getAllProducts,
   getProductByIdController,
   updateProductById,
-  deleteProductByIController,
+  deleteProductByIdController,
+  deleteProductByTitleController,
 };
